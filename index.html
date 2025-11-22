@@ -1,105 +1,239 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio | Julia Kaan</title>
 
-    <!-- Tailwind CSS über CDN, damit es gut aussieht -->
+    <!-- Tailwind CSS über CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Tailwind-Konfiguration für eigene Farben + Dark-Mode
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        lavender: {
+                            light: '#f7ecff',
+                            DEFAULT: '#e3cffb',
+                            dark: '#b08ad9'
+                        },
+                        plum: '#9b5de5',
+                        rose: '#ff99c8',
+                        night: '#0b1020'
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        /* Kleine Deko-Bubbles im Hintergrund */
+        .blob {
+            filter: blur(60px);
+            opacity: 0.5;
+        }
+    </style>
 </head>
-<body class="bg-stone-50 text-stone-900">
+<body class="min-h-screen bg-lavender-light dark:bg-night text-slate-900 dark:text-slate-100 transition-colors duration-500">
 
-<!-- Header / Hero-Bereich -->
-<header class="min-h-[40vh] flex flex-col items-center justify-center text-center px-4">
-    <h1 class="text-4xl md:text-5xl font-bold mb-3">Hi, ich bin Julia 👋</h1>
-    <p class="text-lg md:text-xl text-stone-600 mb-4">
-        Junior Software Developer · Medieninformatik &amp; Visual Computing (TU Wien)
-    </p>
-    <p class="text-sm md:text-base text-stone-500 max-w-xl">
-        Interesse an Softwareentwicklung, Web, UI/UX und nachhaltigen digitalen Lösungen.
-    </p>
-</header>
+<!-- Hintergrund-Blobs -->
+<div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="blob absolute -top-10 -left-10 w-64 h-64 bg-rose rounded-full"></div>
+    <div class="blob absolute top-1/3 -right-10 w-72 h-72 bg-lavender dark:bg-plum rounded-full"></div>
+    <div class="blob absolute bottom-0 left-1/4 w-80 h-80 bg-plum rounded-full"></div>
+</div>
 
-<!-- Hauptinhalt -->
-<main class="max-w-3xl mx-auto px-4 pb-10 space-y-10">
+<div class="max-w-4xl mx-auto px-4 py-6 md:py-10">
+    <!-- Top-Bar mit Theme-Schalter -->
+    <header class="flex items-center justify-between gap-4 mb-8">
+        <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Portfolio</p>
+            <h1 class="text-2xl md:text-3xl font-semibold">Julia Kaan</h1>
+        </div>
 
-    <!-- Über mich -->
-    <section>
-        <h2 class="text-2xl font-semibold mb-3">Über mich</h2>
-        <p class="text-sm md:text-base leading-relaxed text-stone-700">
-            Ich habe mein Bachelorstudium Medieninformatik &amp; Visual Computing an der TU Wien abgeschlossen
-            und orientiere mich aktuell in Richtung einer Einstiegsposition im Bereich Softwareentwicklung.
-            Besonders spannend finde ich die Schnittstelle zwischen Technologie, Gestaltung und nachhaltigen
-            digitalen Lösungen.
-        </p>
-    </section>
-
-    <!-- Skills -->
-    <section>
-        <h2 class="text-2xl font-semibold mb-3">Skills</h2>
-        <div class="grid md:grid-cols-2 gap-4 text-sm md:text-base">
-            <div class="bg-white border border-stone-200 rounded-lg p-4">
-                <h3 class="font-medium mb-2">Sprachen &amp; Technologien</h3>
-                <ul class="list-disc list-inside text-stone-700 space-y-1">
-                    <li>Java, C++, C#, Python</li>
-                    <li>Grundlagen in HTML, CSS &amp; JavaScript</li>
-                    <li>Git &amp; Versionskontrolle</li>
-                </ul>
+        <!-- Theme Toggle Gadget -->
+        <button
+                id="theme-toggle"
+                class="relative flex items-center gap-3 rounded-full border border-white/60 dark:border-slate-700 bg-white/70 dark:bg-slate-900/60 backdrop-blur px-4 py-2 shadow-sm hover:shadow-md transition-all"
+        >
+            <div class="relative flex items-center justify-center w-8 h-8 rounded-full bg-lavender dark:bg-amber-400/20">
+                <!-- Glühbirne -->
+                <svg id="bulb-icon" viewBox="0 0 24 24" class="w-5 h-5 text-amber-300 dark:text-amber-400 transition-colors">
+                    <path fill="currentColor" d="M9 21h6v-1H9v1Zm3-19a6 6 0 0 0-3.9 10.5c.3.3.9.9.9 1.7v.3h6v-.3c0-.8.6-1.4.9-1.7A6 6 0 0 0 12 2Zm0 2a4 4 0 0 1 2.6 7.1c-.6.5-1.1 1.3-1.3 2.1h-2.6c-.2-.8-.7-1.6-1.3-2.1A4 4 0 0 1 12 4Z"/>
+                </svg>
+                <!-- "Glow" Effekt wenn Light Mode -->
+                <div id="bulb-glow" class="absolute w-10 h-10 rounded-full bg-amber-200/40 blur-md opacity-0 transition-opacity"></div>
             </div>
-            <div class="bg-white border border-stone-200 rounded-lg p-4">
-                <h3 class="font-medium mb-2">Methoden &amp; Fokus</h3>
-                <ul class="list-disc list-inside text-stone-700 space-y-1">
-                    <li>Figma &amp; UI/UX Designprozesse</li>
-                    <li>Design Thinking &amp; nutzerorientierte Konzeption</li>
-                    <li>Visuelle Datenverarbeitung &amp; Informationsvisualisierung</li>
-                    <li>Analytisches Arbeiten, Forschung &amp; Problemlösung</li>
-                </ul>
+            <div class="flex flex-col items-start text-xs leading-tight">
+                <span class="font-medium" id="theme-label">Light Mode</span>
+                <span class="text-[0.65rem] text-slate-500 dark:text-slate-400">Klick zum Umschalten</span>
+            </div>
+        </button>
+    </header>
+
+    <!-- Hero -->
+    <section class="mb-10 md:mb-14">
+        <div class="rounded-3xl bg-white/70 dark:bg-slate-900/70 border border-white/60 dark:border-slate-700 backdrop-blur p-6 md:p-8 shadow-sm">
+            <p class="text-sm uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400 mb-4">Junior Software Developer</p>
+            <h2 class="text-3xl md:text-4xl font-bold mb-3">
+                Medieninformatik &amp; Visual Computing · TU Wien
+            </h2>
+            <p class="text-sm md:text-base text-slate-700 dark:text-slate-300 max-w-2xl">
+                Interesse an <strong>Softwareentwicklung</strong>, <strong>Web</strong>, <strong>UI/UX</strong>,
+                <strong>visueller Datenverarbeitung</strong> und <strong>nachhaltigen digitalen Lösungen</strong>.
+            </p>
+
+            <!-- kleine "Pills" als visuelle Tags -->
+            <div class="flex flex-wrap gap-2 mt-5 text-xs">
+                <span class="px-3 py-1 rounded-full bg-lavender dark:bg-plum/60 text-slate-800 dark:text-slate-100">Web &amp; UI</span>
+                <span class="px-3 py-1 rounded-full bg-rose/70 text-slate-800">Nachhaltige IT</span>
+                <span class="px-3 py-1 rounded-full bg-white/80 dark:bg-slate-800 border border-lavender/40 dark:border-slate-700">
+                    Visual Computing
+                </span>
             </div>
         </div>
     </section>
 
-    <!-- Projekte (Platzhalter, später füllst du das) -->
-    <section>
-        <h2 class="text-2xl font-semibold mb-3">Projekte</h2>
+    <!-- Content Grid: Über mich + Skills -->
+    <main class="grid md:grid-cols-2 gap-6 md:gap-8 mb-10 md:mb-14">
+        <!-- Über mich -->
+        <section class="rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-white/60 dark:border-slate-700 backdrop-blur p-5 md:p-6 shadow-sm">
+            <h3 class="text-lg font-semibold mb-3">Über mich</h3>
+            <p class="text-sm md:text-sm leading-relaxed text-slate-700 dark:text-slate-300 mb-2">
+                Ich habe mein Bachelorstudium <strong>Medieninformatik &amp; Visual Computing</strong> an der
+                <strong>TU Wien</strong> abgeschlossen und orientiere mich aktuell in Richtung einer Einstiegsposition im
+                Bereich <strong>Softwareentwicklung</strong>.
+            </p>
+            <p class="text-sm md:text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                Besonders spannend finde ich die Schnittstelle zwischen <strong>Technologie</strong>,
+                <strong>Gestaltung</strong> und <strong>nachhaltigen digitalen Lösungen</strong>.
+                In meiner Bachelorarbeit habe ich mich mit dem <strong>Digitalen Produktpass</strong> im Kontext
+                europäischer Nachhaltigkeitsinitiativen beschäftigt.
+            </p>
+        </section>
 
-        <div class="space-y-4 text-sm md:text-base">
-
-            <div class="bg-white border border-stone-200 rounded-lg p-4">
-                <h3 class="font-medium mb-1">Bachelorarbeit – Digitaler Produktpass</h3>
-                <p class="text-stone-700 mb-2">
-                    Auseinandersetzung mit dem Digitalen Produktpass im Kontext europäischer
-                    Nachhaltigkeitsinitiativen und der Frage, wie digitale Systeme Nachhaltigkeit,
-                    Transparenz und verantwortungsvollen Konsum unterstützen können.
-                </p>
-                <!-- Wenn du später ein Repo oder PDF online hast, hier verlinken -->
-                <!-- <a href="#" class="text-sm text-stone-600 underline">Mehr dazu</a> -->
+        <!-- Skills -->
+        <section class="rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-white/60 dark:border-slate-700 backdrop-blur p-5 md:p-6 shadow-sm">
+            <h3 class="text-lg font-semibold mb-3">Skills</h3>
+            <div class="space-y-4 text-sm">
+                <div>
+                    <p class="font-medium mb-1">Sprachen &amp; Technologien</p>
+                    <ul class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-1">
+                        <li>Java, C++, C#, Python</li>
+                        <li>Grundlagen in HTML, CSS &amp; JavaScript</li>
+                        <li>Git &amp; Versionskontrolle</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-medium mb-1">Arbeitsweise &amp; Fokus</p>
+                    <ul class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-1">
+                        <li>Figma &amp; UI/UX Designprozesse</li>
+                        <li>Design Thinking &amp; nutzerorientierte Konzeption</li>
+                        <li>Visuelle Datenverarbeitung &amp; Informationsvisualisierung</li>
+                        <li>Analytisches Arbeiten, Forschung &amp; Problemlösung</li>
+                        <li>Teamarbeit &amp; Lernbereitschaft</li>
+                    </ul>
+                </div>
             </div>
+        </section>
+    </main>
 
-            <div class="bg-white border border-stone-200 rounded-lg p-4">
-                <h3 class="font-medium mb-1">Beispiel-Projekt</h3>
-                <p class="text-stone-700 mb-2">
-                    Hier kannst du eines deiner Uni-Projekte kurz beschreiben (Technologien, Ziel, was du gemacht hast).
+    <!-- Projekte -->
+    <section class="mb-10 md:mb-14">
+        <h3 class="text-lg font-semibold mb-3">Projekte</h3>
+        <div class="grid gap-4 md:grid-cols-2 text-sm">
+            <!-- Projektkarte 1 -->
+            <article class="group rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-white/60 dark:border-slate-700 backdrop-blur p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                <p class="text-[0.7rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 mb-1">
+                    Bachelorarbeit
                 </p>
-                <!-- <a href="GITHUB_LINK_HIER" class="text-sm text-stone-600 underline">Zum GitHub-Repository</a> -->
-            </div>
+                <h4 class="font-semibold mb-2">Digitaler Produktpass &amp; Nachhaltigkeit</h4>
+                <p class="text-slate-700 dark:text-slate-300 mb-2">
+                    Untersuchung, wie digitale Systeme Nachhaltigkeit, Transparenz und verantwortungsvollen Konsum im Kontext
+                    des Digitalen Produktpasses unterstützen können.
+                </p>
+                <!-- Später kannst du hier einen Link einfügen -->
+                <!-- <a href="#" class="text-xs text-plum underline">Mehr dazu</a> -->
+            </article>
 
+            <!-- Projektkarte 2 (Platzhalter, später ersetzen) -->
+            <article class="group rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-white/60 dark:border-slate-700 backdrop-blur p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                <p class="text-[0.7rem] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 mb-1">
+                    Uni-Projekt
+                </p>
+                <h4 class="font-semibold mb-2">Beispielprojekt</h4>
+                <p class="text-slate-700 dark:text-slate-300 mb-2">
+                    Hier kannst du eines deiner Uni-Projekte kurz vorstellen (Ziel, Rolle, Technologien).
+                </p>
+                <!-- <a href="DEIN_GITHUB_LINK" class="text-xs text-plum underline">Zum GitHub-Repository</a> -->
+            </article>
         </div>
     </section>
 
     <!-- Kontakt -->
-    <section>
-        <h2 class="text-2xl font-semibold mb-3">Kontakt</h2>
-        <p class="text-sm md:text-base text-stone-700">
+    <section class="mb-6 md:mb-10 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-white/60 dark:border-slate-700 backdrop-blur p-5 md:p-6 shadow-sm">
+        <h3 class="text-lg font-semibold mb-3">Kontakt</h3>
+        <p class="text-sm text-slate-700 dark:text-slate-300 mb-2">
             Am besten erreichst du mich über LinkedIn oder per E-Mail.
         </p>
-        <ul class="mt-2 text-sm md:text-base text-stone-700 space-y-1">
-            <li>LinkedIn: <a href="DEIN_LINKEDIN_LINK" class="underline">Profil ansehen</a></li>
-            <li>E-Mail: <a href="mailto:DEINE_MAIL@adresse.at" class="underline">DEINE_MAIL@adresse.at</a></li>
+        <ul class="text-sm space-y-1">
+            <li>
+                LinkedIn:
+                <a href="DEIN_LINKEDIN_LINK" class="underline text-plum dark:text-lavender">
+                    Profil ansehen
+                </a>
+            </li>
+            <li>
+                E-Mail:
+                <a href="mailto:DEINE_MAIL@adresse.at" class="underline text-plum dark:text-lavender">
+                    DEINE_MAIL@adresse.at
+                </a>
+            </li>
         </ul>
     </section>
 
-</main>
+    <footer class="text-[0.7rem] text-center text-slate-500 dark:text-slate-500">
+        © <span id="year"></span> Julia Kaan
+    </footer>
+</div>
+
+<!-- Theme-Logik -->
+<script>
+    const root = document.documentElement;
+    const toggleBtn = document.getElementById('theme-toggle');
+    const themeLabel = document.getElementById('theme-label');
+    const bulbGlow = document.getElementById('bulb-glow');
+
+    // gespeichertes Theme laden
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') {
+        root.classList.add('dark');
+        themeLabel.textContent = 'Dark Mode';
+        bulbGlow.style.opacity = 0;
+    } else {
+        root.classList.remove('dark');
+        themeLabel.textContent = 'Light Mode';
+        bulbGlow.style.opacity = 1;
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        const isDark = root.classList.toggle('dark');
+        if (isDark) {
+            localStorage.setItem('theme', 'dark');
+            themeLabel.textContent = 'Dark Mode';
+            bulbGlow.style.opacity = 0;
+        } else {
+            localStorage.setItem('theme', 'light');
+            themeLabel.textContent = 'Light Mode';
+            bulbGlow.style.opacity = 1;
+        }
+    });
+
+    // Jahr im Footer setzen
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>
