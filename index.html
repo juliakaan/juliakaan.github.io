@@ -32,6 +32,8 @@
             margin-inline:auto;
             aspect-ratio:1200 / 675;      /* gleiche Fläche wie in Canva */
             overflow:hidden;
+            transform: translateX(50px) scale(1.3); /* Größe + leichte Verschiebung */
+            transform-origin: center;
         }
 
         /* Basis: alle SVGs liegen erst mal deckungsgleich übereinander */
@@ -44,10 +46,15 @@
             display:block;
         }
 
-        /* Lampe – schwenkt leicht ----------------------------------------- */
+        /* Lampe – Grund-Schwingen ----------------------------------------- */
         .scene-lamp{
             transform-origin:50% 8%;      /* nahe am Kabel */
             animation:swingLamp 7s ease-in-out infinite;
+        }
+
+        @keyframes swingLamp {
+            0%,100% { transform: rotate(-1.5deg); }
+            50%     { transform: rotate(1.5deg); }
         }
 
         /* Topf + Blätter: statisch, Blätter leicht dahinter */
@@ -83,12 +90,6 @@
             opacity:.7;
             pointer-events:none;
         }
-
-        .desk-scene {
-            transform: translateX(50px) scale(1.3); /* Wert kannst du anpassen */
-            transform-origin: center;
-        }
-
 
         /* Section-Wrapper (Night + Day Varianten) ------------------------- */
         .section-shell{border-radius:1.5rem;padding:1px;}
@@ -166,13 +167,32 @@
             transform: translateY(-2px);
         }
 
-        /* Animations ------------------------------------------------------ */
-        @keyframes swingLamp {
-            0%,100% { transform: rotate(-1.5deg); }
-            50%     { transform: rotate(1.5deg); }
+        /* Verstärktes Auspendeln nach Theme-Switch ------------------------ */
+        .scene-lamp.lamp-boost {
+            animation: lampBoost 2.2s ease-out forwards !important;
         }
 
-        /* Fenster-Overlay auf dem Monitor: Window 2 kommt über Window 1 */
+        /* gedämpftes, realistisches Ausschwingen – endet im normalen Swing-Winkel */
+        @keyframes lampBoost {
+            /* Start im gleichen Winkel wie swingLamp (nahtloser Übergang) */
+            0%   { transform: rotate(-1.5deg); }
+
+            /* ein paar leicht verstärkte Ausschläge */
+            12%  { transform: rotate(3.5deg); }
+            24%  { transform: rotate(-3deg); }
+            38%  { transform: rotate(2.5deg); }
+            52%  { transform: rotate(-2deg); }
+            68%  { transform: rotate(2deg); }
+
+            /* langsam ans normale Schwingen angleichen */
+            82%  { transform: rotate(-1.7deg); }
+            92%  { transform: rotate(1.4deg); }
+
+            /* endet praktisch im swingLamp-Startwinkel */
+            100% { transform: rotate(-1.5deg); }
+        }
+
+        /* Fenster-Overlay auf dem Monitor: Window 2 kommt über Window 1 ---- */
         @keyframes windowOverlay {
             0%,35%   { opacity:0; }
             45%,90%  { opacity:1; }
@@ -403,55 +423,76 @@
 </div>
 
 <script>
-    const body = document.body;
-    const toggle = document.getElementById("themeToggle");
-    const label = document.getElementById("themeLabel");
+    document.addEventListener("DOMContentLoaded", () => {
+        const body   = document.body;
+        const toggle = document.getElementById("themeToggle");
+        const label  = document.getElementById("themeLabel");
 
-    function setTheme(theme){
-        body.classList.remove("theme-day","theme-night");
-        body.classList.add(theme);
-        label.textContent = theme==="theme-night" ? "Night" : "Day";
-        localStorage.setItem("jk-theme",theme);
-    }
+        function setTheme(theme){
+            body.classList.remove("theme-day","theme-night");
+            body.classList.add(theme);
+            label.textContent = theme==="theme-night" ? "Night" : "Day";
+            localStorage.setItem("jk-theme",theme);
+        }
 
-    const saved = localStorage.getItem("jk-theme");
-    if(saved==="theme-day" || saved==="theme-night"){ setTheme(saved); }
-    else { setTheme("theme-night"); }
+        const saved = localStorage.getItem("jk-theme");
+        if(saved==="theme-day" || saved==="theme-night"){ setTheme(saved); }
+        else { setTheme("theme-night"); }
 
-    toggle.addEventListener("click", () => {
-        const next = body.classList.contains("theme-night") ? "theme-day" : "theme-night";
-        setTheme(next);
+        toggle.addEventListener("click", () => {
+            const next = body.classList.contains("theme-night") ? "theme-day" : "theme-night";
+            setTheme(next);
+
+            // Lampe-Boost beim Theme-Wechsel
+            const lamp = document.querySelector(".scene-lamp");
+            if (lamp) {
+                // vorherigen Boost entfernen, damit wir neu starten können
+                lamp.classList.remove("lamp-boost");
+                // Reflow erzwingen, damit der Browser die Animation neu registriert
+                void lamp.offsetWidth;
+                lamp.classList.add("lamp-boost");
+
+                // Wenn der Boost fertig ist, wieder in den Normalzustand
+                const onEnd = (e) => {
+                    if (e.animationName === "lampBoost") {
+                        lamp.classList.remove("lamp-boost");
+                        lamp.removeEventListener("animationend", onEnd);
+                    }
+                };
+                lamp.addEventListener("animationend", onEnd);
+            }
+        });
+
+        // Portrait-Overlay-Logik
+        const portraitThumb = document.getElementById("portrait-thumb");
+        const portraitModal = document.getElementById("portrait-modal");
+
+        function closePortraitModal() {
+            portraitModal.classList.add("hidden");
+        }
+
+        function openPortraitModal() {
+            portraitModal.classList.remove("hidden");
+        }
+
+        if (portraitThumb && portraitModal) {
+            portraitThumb.addEventListener("click", openPortraitModal);
+
+            // Klick überall außerhalb des Bildes schließt
+            portraitModal.addEventListener("click", (e) => {
+                const clickedOnImage = e.target.closest(".modal-image");
+                if (!clickedOnImage) {
+                    closePortraitModal();
+                }
+            });
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    closePortraitModal();
+                }
+            });
+        }
     });
-
-    // Portrait-Overlay-Logik
-    const portraitThumb = document.getElementById("portrait-thumb");
-    const portraitModal = document.getElementById("portrait-modal");
-
-    function closePortraitModal() {
-        portraitModal.classList.add("hidden");
-    }
-
-    function openPortraitModal() {
-        portraitModal.classList.remove("hidden");
-    }
-
-    if (portraitThumb && portraitModal) {
-        portraitThumb.addEventListener("click", openPortraitModal);
-
-        // Klick überall außerhalb des Bildes schließt
-        portraitModal.addEventListener("click", (e) => {
-            const clickedOnImage = e.target.closest(".modal-image");
-            if (!clickedOnImage) {
-                closePortraitModal();
-            }
-        });
-
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") {
-                closePortraitModal();
-            }
-        });
-    }
 </script>
 </body>
 </html>
